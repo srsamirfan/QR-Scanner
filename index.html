@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Ultimate Offline QR Code Scanner - Works completely offline, no internet required">
+  <meta name="theme-color" content="#0f172a">
+  <title>Ultimate Offline QR Scanner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="3" height="3"/>
+          <rect x="18" y="14" width="3" height="3"/>
+          <rect x="14" y="18" width="3" height="3"/>
+          <rect x="18" y="18" width="3" height="3"/>
+        </svg>
+        <h1>QR Scanner</h1>
+      </div>
+
+    </header>
+
+    <main class="main">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="camera">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          Camera
+        </button>
+        <button class="tab" data-tab="upload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Upload
+        </button>
+        <button class="tab" data-tab="history">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          History
+        </button>
+      </div>
+
+      <!-- Camera Panel -->
+      <section id="panel-camera" class="panel active">
+        <div class="scanner-container">
+          <video id="video" playsinline muted></video>
+          <canvas id="canvas" hidden></canvas>
+          <div class="scan-overlay">
+            <div class="scan-frame">
+              <div class="corner tl"></div>
+              <div class="corner tr"></div>
+              <div class="corner bl"></div>
+              <div class="corner br"></div>
+              <div class="scan-line"></div>
+            </div>
+          </div>
+          <div class="status-bar" id="camera-status">
+            <span class="status-dot"></span>
+            <span id="status-text">Ready to scan</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="btn-start" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Start Camera
+          </button>
+          <button id="btn-stop" class="btn btn-secondary" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="6" width="12" height="12"/>
+            </svg>
+            Stop
+          </button>
+          <button id="btn-switch" class="btn btn-ghost" disabled title="Switch Camera">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 1l4 4-4 4"/>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+              <path d="M7 23l-4-4 4-4"/>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+          </button>
+          <button id="btn-torch" class="btn btn-ghost" disabled title="Toggle Flash">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18h6"/>
+              <path d="M10 22h4"/>
+              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Upload Panel -->
+      <section id="panel-upload" class="panel">
+        <div class="upload-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/*" hidden>
+          <div class="upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p class="upload-title">Drop image here</p>
+          <p class="upload-hint">or click to browse • PNG, JPG, WebP, GIF</p>
+          <button class="btn btn-primary" id="btn-browse">Choose File</button>
+        </div>
+        <div class="preview-container" id="preview-container" hidden>
+          <img id="preview-img" alt="Preview">
+          <canvas id="upload-canvas" hidden></canvas>
+          <button class="btn btn-ghost btn-sm" id="btn-clear-preview">Clear</button>
+        </div>
+      </section>
+
+      <!-- History Panel -->
+      <section id="panel-history" class="panel">
+        <div class="history-header">
+          <h2>Scan History</h2>
+          <button class="btn btn-ghost btn-sm" id="btn-clear-history">Clear All</button>
+        </div>
+        <div class="history-list" id="history-list">
+          <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <p>No scans yet</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Card -->
+      <div class="result-card" id="result-card" hidden>
+        <div class="result-header">
+          <span class="result-label">Scanned Result</span>
+          <button class="btn-icon" id="btn-close-result" title="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="result-content" id="result-content"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary btn-sm" id="btn-copy">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-open" hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Open Link
+          </button>
+          <button class="btn btn-ghost btn-sm" id="btn-share" hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Share
+          </button>
+        </div>
+      </div>
+    </main>
+
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="jsQR.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
